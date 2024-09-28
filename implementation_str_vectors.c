@@ -470,4 +470,37 @@ int find(const String *this, const char *substr) {
     return -1;
 }
 
+int to_string(String *this, int val) {
+    if (this == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    
+    int size = 0;
+    int tmp = val;
+
+    while (tmp) {
+        tmp /= 10;
+        ++size;
+    }
+
+    if (this->data == NULL) {
+        string_init_size(this, size);
+    }
+    if (this->data != NULL) {
+        clear(this);
+        this->capacity = size + 1;
+        this->data = (char*)calloc(this->capacity, sizeof(char));
+    }
+
+    this->length = size;
+
+    while (val) {
+        tmp = val % 10;
+        val /= 10;
+        this->data[--size] = tmp + 48;
+    }
+    
+    return 0;
+}
 
