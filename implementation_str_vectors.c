@@ -504,3 +504,27 @@ int to_string(String *this, int val) {
     return 0;
 }
 
+int to_int(String *this) {
+    if (this == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    if (this->data == NULL) {
+        my_errno(INV_DATA);
+        return -1;
+    }
+    
+    char *tmpPtr = this->data;
+    int tmp = 0;
+
+    while (*tmpPtr) {
+        if (*tmpPtr < '0' || *tmpPtr > '9') {
+            ++tmpPtr;
+            continue;
+        }
+        tmp = tmp * 10 + (*tmpPtr - 48);
+        ++tmpPtr;
+    }
+
+    return tmp;    
+}
