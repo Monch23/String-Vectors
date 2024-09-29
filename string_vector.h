@@ -28,9 +28,9 @@ int string_init(String* this);
 int string_init_size(String* this, size_t new_cap);
 int string_init_fill(String* this, size_t new_size, char value);
 int string_copy(String* this, const String* other);
-int createString(String* this, const char *str);
+int create_string(String* this, const char *str);
 String* string_assign(String* this, const String* other);
-int destroyString(String *this);
+int destroy_string(String *this);
 
 //Element Access
 char* at(const String *this, size_t index);
