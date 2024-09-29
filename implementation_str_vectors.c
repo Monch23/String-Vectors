@@ -528,3 +528,88 @@ int to_int(String *this) {
 
     return tmp;    
 }
+
+int substring(const String *this, String *substr, size_t from, size_t length) {
+    if (this == NULL || substr == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    if (this->data == NULL) {
+        my_errno(INV_DATA);
+        return -1;
+    }
+    if (substr->data != NULL) {
+        clear(substr);
+    }
+    if ((from + length) > this->length) {
+        my_errno(INV_LENGTH);
+        return -1;
+    }
+
+   
+    string_init_size(substr, this->length - from + length);
+    substr->length = from + length;
+
+    for (int i = from, j = 0; j < length; ++i, ++j) {
+        substr->data[j] = this->data[i];
+    }
+
+    return 0;
+}
+
+int string_reverse(String *this) {
+    if (this == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    if (this->data == NULL) {
+        my_errno(INV_DATA);
+        return -1;
+    }
+
+    for (int i = 0, j = this->length - 1; i < this->length / 2; ++i, --j) {
+        this->data[i] ^= this->data[j];
+        this->data[j] ^= this->data[i];
+        this->data[i] ^= this->data[j];
+    }
+
+    return 0;
+}
+
+int string_to_lowercase(String *this) {
+    if (this == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    if (this->data == NULL) {
+        my_errno(INV_DATA);
+        return -1;
+    }
+
+    for (int i = 0; i < this->length; ++i) {
+        if (this->data[i] >= 'A' && this->data[i] <= 'Z') {
+            this->data[i] ^= 32;
+        }
+    }
+
+    return 0;
+}
+
+int string_to_uppercase(String *this) {
+    if (this == NULL) {
+        my_errno(INV_PTR);
+        return -1;
+    }
+    if (this->data == NULL) {
+        my_errno(INV_DATA);
+        return -1;
+    }
+
+    for (int i = 0; i < this->length; ++i) {
+        if (this->data[i] >= 'a' && this->data[i] <= 'z') {
+            this->data[i] ^= 32;
+        }
+    }
+
+    return 0;
+}
