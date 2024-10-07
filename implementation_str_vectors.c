@@ -74,10 +74,6 @@ int string_init_size(String *this, size_t new_cap) {
 		my_errno(BAD_CAP);
 		return -1;
 	}
-	if (this->data == NULL) {
-		my_errno(INV_DATA);
-		return -1;
-	}
 
 	this->capacity = new_cap + 1;
 	this->length = 0;
@@ -112,11 +108,11 @@ int string_init_fill(String *this, size_t new_size, char value) {
 }
 
 int string_copy(String *this, const String *other) {
-	if (other == NULL) {
+	if (other == NULL || this == NULL) {
 		my_errno(INV_PTR);
 		return -1;
 	}
-	if (other->data) {
+	if (other->data == NULL) {
 		my_errno(INV_DATA);
 		return -1;
 	}
@@ -198,7 +194,7 @@ char *at(const String *this, size_t index) {
 	if (this == NULL) {
 		return NULL;
 	}
-	if (index > this->length) {
+	if (index >= this->length) {
 		my_errno(INV_IND);
 		return NULL;
 	}
@@ -255,58 +251,63 @@ int empty(String *this) {
 
 int append(String *this, const String *other) {
 	if (this == NULL ) {
-        my_errno(INV_PTR);
-        return -1;
-    }
-
-    if (this->data == other->data) {
-        my_errno(SAM_DATA);
-        return -1;
+        	my_errno(INV_PTR);
+        	return -1;
+    	}
+	
+    	if (this->data == other->data) {
+        	my_errno(SAM_DATA);
+        	return -1;
 	}
-
-	if ((this->length + other->length) > this->capacity || this->data == NULL) {
+	if (this->data == NULL) {
+		create_string(this, other->data);
+		return 0;
+	}
+	if ((this->length + other->length) >= this->capacity) {
 		resize(&this->data, this->length + other->length, this->length);
 	}	
 	
-	(this->data) += this->length;
-    this->capacity += 1;
+	this->data += this->length;
 	int i = 0;
 
 	while (*(this->data)) {
 		*(this->data) = other->data[i++];
 		this->data++;
 	}
-
+	
+    	this->capacity += 1;
+	this->length += other->length;
+	
 	return 0;
 }
 
 int string_push_back(String *this, char value) {
 	if (this == NULL) {
-        my_errno(INV_PTR);
-        return -1;
+	        my_errno(INV_PTR);
+        	return -1;
 	}
 	if (this->data == NULL) {
 		string_init_size(this, 1);
 		this->data[0] = value;
 		return 0;		
 	}
-	if (this->length == (this->capacity - 1)) {
+	if (this->length >= (this->capacity - 1)) {
 		resize(&this->data, this->capacity, this->length);
 	}
 
 	this->data[this->length++] = value;
-    this->capacity += 1;
+    	this->capacity += 1;
 	return 0;
 }
 
 int string_pop_back(String* this) {
 	if (this == NULL) {
-        my_errno(INV_PTR);
-        return -1;
+        	my_errno(INV_PTR);
+        	return -1;
 	}
 	if (this->data == NULL) {
-        my_errno(INV_DATA);
-        return -1;
+        	my_errno(INV_DATA);
+        	return -1;
 	}
 	if (!this->length) {
 		my_errno(INV_LENGTH);
@@ -314,18 +315,18 @@ int string_pop_back(String* this) {
 	}
 
 	resize(&this->data, this->capacity - 1, this->length - 1);
-    this->capacity -= 1;
-    this->length -= 1;
+    	this->capacity -= 1;
+    	this->length -= 1;
 	return 0;
 }
 
 int clear(String *this) {
 	if (this == NULL) {
-        my_errno(INV_PTR);
-        return -1;
+        	my_errno(INV_PTR);
+        	return -1;
 	}
 	if (this->data == NULL) {
-        my_errno(INV_DATA);
+		my_errno(INV_DATA);
 		return -1;
 	}
 	
@@ -386,6 +387,7 @@ int erase(String *this, size_t pos) {
     for (int i = pos; i < this->length - 1; ++i) {
         this->data[i] = this->data[i + 1];
     }
+ 
     this->length -= 1;
     this->data[this->length] = '\0';
 
